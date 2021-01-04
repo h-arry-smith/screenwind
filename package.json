@@ -16,5 +16,8 @@
     "chalk": "^4.1.0",
     "puppeteer": "^5.5.0",
     "yargs": "^16.2.0"
+  },
+  "devDependencies": {
+    "tailwind": "^4.0.0"
   }
 }

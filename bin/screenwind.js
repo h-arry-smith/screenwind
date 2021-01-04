@@ -21,9 +21,6 @@ const tailwindDefaults = {
   }
 }
 
-const url = 'http://localhost:1313/';
-const universalHeight = 1000;
-
 const getScreenOptions = (config, height) => {
   const options = [];
 
@@ -75,33 +72,40 @@ const takeScreenshots = async (page, options, out, fullPage) => {
   }
 }
 
-const run = async (argv) => {
-  // Create directory if it doesn't exist
-  fs.access(argv.out, fs.constants.F_OK, (err) => {
+const createDirectoryIfMissing = (path) => {
+  fs.access(path, fs.constants.F_OK, (err) => {
     if (err) {
-      fs.mkdir(argv.out, (err) => {
+      fs.mkdir(path, (err) => {
         if (err) {
-          console.log(err);
+          console.log(`Could not create directory ${path}`);
+          process.exit(1);
         } else {
-          console.log(`Making directory: ${argv.out}`)
+          console.log(`Making directory: ${path}`);
         }
       })
     }
   })
+}
+
+const run = async (argv) => {
+  // Create directory if it doesn't exist
+  createDirectoryIfMissing(argv.out);
 
   console.log('Taking screenshots...');
 
   // Navigate to the page
-  let browser = await puppeteer.launch({
-    headless: true
-  });
+  let browser = await puppeteer.launch();
 
   let page = await browser.newPage();
 
   await page.goto(argv.url, {
-    waitUntil: "networkidle0",
-    timeout: 60000
-  });
+      waitUntil: "networkidle0",
+      timeout: argv.timeout
+    })
+    .catch(error => {
+      console.log(chalk.red('✕') + chalk.red.dim(` Timed out! ${argv.timeout}ms`));
+      process.exit(1);
+    });
 
   // Take the screenshots
 
@@ -138,6 +142,12 @@ yargs(hideBin(process.argv))
           type: 'boolean',
           describe: 'take full height screenshots, overides height',
           default: false
+        })
+        .option('timeout', {
+          alias: 't',
+          type: 'number',
+          describe: 'time in ms before timeout',
+          default: 10000
         })
     },
     (argv) => {
