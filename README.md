@@ -1,6 +1,6 @@
 # Screenwind
 
-Screenwind is a command line tool that automatically takes your tailwind config and output screenshots at those sizes using chromium (via puppeteer).
+Screenwind is a command line tool that automatically creates screenshots using the default tailwind breakpoints.
 
 ## Installation
 
@@ -14,17 +14,6 @@ node install . -g
  -  Puppeteer ^5.5.0
  -  Yargs ^16.2.0
 
- To resolve your config screenwind must be run in the same directory as the config file. You must have tailwind installed.
-
-## Using without tailwind
-
-If it can't load tailwind then it won't try to load a config and will use the default values.
-
-## Tailwind Configuration
-
-Where min/max values are used it will take those values as the width for the screenshot. 
-
-At present more complex breakpoints are not supported.
 
 ## Usage
 
@@ -41,7 +30,10 @@ By default it will output the .png files with the name of each breakpoint to ./s
  --timeout  -t    Time in ms before timeout, default: 10000
 ```
 
+It will also output a mobile screenshot which has been set to a width of 360px.
+
 ## Future work
+- Load the breakpoints from config. This presents some additional challenges that for now outside of the scope of my usecase. It's more than possible to edit the source quite easily to use custom breakpoints, though I understand it's not paticularly elegant.
 - Be able to set the file format (jpeg | png)
 - Make it so multiple URL's can be accepted
 - Add options for more useful filenames (e.g with date time information)

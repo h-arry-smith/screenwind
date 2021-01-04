@@ -8,6 +8,10 @@ import {
   hideBin
 } from 'yargs/helpers';
 
+const logError = (message) => {
+  console.log(chalk.red('Error: ') + chalk.red.bold(message));
+}
+
 const tailwindDefaults = {
   theme: {
     screens: {
@@ -20,6 +24,7 @@ const tailwindDefaults = {
     }
   }
 }
+
 
 const getScreenOptions = (config, height) => {
   const options = [];
@@ -77,7 +82,7 @@ const createDirectoryIfMissing = (path) => {
     if (err) {
       fs.mkdir(path, (err) => {
         if (err) {
-          console.log(chalk.red('Error: ') + `Could not create directory ${path}`);
+          logError(`Could not create directory ${path}`);
           process.exit(1);
         } else {
           console.log(`Making directory: ${path}`);
@@ -103,7 +108,7 @@ const run = async (argv) => {
       timeout: argv.timeout
     })
     .catch(error => {
-      console.log(chalk.red('✕') + chalk.red.dim(` Timed out! ${argv.timeout}ms`));
+      logError(`Timed out! ${argv.timeout}ms`);
       process.exit(1);
     });
 
@@ -119,19 +124,18 @@ const run = async (argv) => {
 // Return true if all args are acceptable, if not return message to prompt user
 const validArgs = (argv) => {
   if (argv.height < 1) {
-    return 'Height must be atleast 1px';
+    return 'Height must be at least 1px';
   }
 
   return true;
 }
 
 yargs(hideBin(process.argv))
-  .command('screenwind <url>', '',
+  .command('$0 <url>', '',
     (yargs) => {
       yargs
         .positional('url', {
           describe: 'url to take screenshots of',
-
         })
         .option('out', {
           alias: 'o',
@@ -161,7 +165,7 @@ yargs(hideBin(process.argv))
       if (validArgs(argv) === true) {
         run(argv);
       } else {
-        console.log(chalk.red('Error: ') + validArgs(argv))
+        logError(validArgs(argv))
       }
     })
   .demandOption(['url'])
