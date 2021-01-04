@@ -1,11 +1,15 @@
 {
   "name": "screenwind",
   "version": "0.0.1",
+  "type": "module",
   "description": "Automatically take screenshots using headless chrome at tailwind breakpoints",
-  "main": "index.js",
+  "main": "bin/screenwind.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "author": "Harry Smith",
-  "license": "MIT"
+  "license": "MIT",
+  "bin": {
+    "screenwind": "./bin/screenwind.js"
+  }
 }
