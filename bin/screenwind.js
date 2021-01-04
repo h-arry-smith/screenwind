@@ -77,7 +77,7 @@ const createDirectoryIfMissing = (path) => {
     if (err) {
       fs.mkdir(path, (err) => {
         if (err) {
-          console.log(`Could not create directory ${path}`);
+          console.log(chalk.red('Error: ') + `Could not create directory ${path}`);
           process.exit(1);
         } else {
           console.log(`Making directory: ${path}`);
@@ -108,14 +108,21 @@ const run = async (argv) => {
     });
 
   // Take the screenshots
-
   const options = getScreenOptions(tailwindDefaults, argv.height);
   await takeScreenshots(page, options, argv.out, argv.fullPage);
 
   // Tidy up after ourselves
-
   await page.close()
   await browser.close()
+}
+
+// Return true if all args are acceptable, if not return message to prompt user
+const validArgs = (argv) => {
+  if (argv.height < 1) {
+    return 'Height must be atleast 1px';
+  }
+
+  return true;
 }
 
 yargs(hideBin(process.argv))
@@ -151,7 +158,11 @@ yargs(hideBin(process.argv))
         })
     },
     (argv) => {
-      run(argv)
+      if (validArgs(argv) === true) {
+        run(argv);
+      } else {
+        console.log(chalk.red('Error: ') + validArgs(argv))
+      }
     })
   .demandOption(['url'])
   .argv;
