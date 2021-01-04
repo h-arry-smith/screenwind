@@ -45,13 +45,13 @@ const getScreenOptions = (config, height) => {
   return options;
 }
 
-const logScreenshot = (name, width, height, path) => {
+const logScreenshot = (name, width, height, path, fullPage) => {
   console.log(
-    `${chalk.green('✓')} ${chalk.white.bold(name)} breakpoint | ${width}px x ${height}px @ ${path}`
+    `${chalk.green('✓')} ${chalk.white.bold(name)} breakpoint | ${width}px x ${fullPage ? chalk.yellow('FULL') : height}px @ ${path}`
   )
 }
 
-const takeScreenshots = async (page, options, out) => {
+const takeScreenshots = async (page, options, out, fullPage) => {
   for (let option of options) {
     const path = `${out}${option.name}.png`;
     const {
@@ -59,7 +59,7 @@ const takeScreenshots = async (page, options, out) => {
       height
     } = option;
 
-    logScreenshot(option.name, width, height, path);
+    logScreenshot(option.name, width, height, path, fullPage);
 
     // Set viewport size
     await page.setViewport({
@@ -70,41 +70,45 @@ const takeScreenshots = async (page, options, out) => {
     // Take the screenshot
     await page.screenshot({
       path: path,
+      fullPage,
     });
   }
 }
 
-const run = async ({
-  url,
-  out,
-  height
-}) => {
+const run = async (argv) => {
   // Create directory if it doesn't exist
-  fs.access(out, fs.constants.F_OK, (err) => {
+  fs.access(argv.out, fs.constants.F_OK, (err) => {
     if (err) {
-      fs.mkdir(out, (err) => {
+      fs.mkdir(argv.out, (err) => {
         if (err) {
           console.log(err);
         } else {
-          console.log(`Making directory: ${out}`)
+          console.log(`Making directory: ${argv.out}`)
         }
       })
     }
   })
 
-  console.log('Taking screenshots...')
+  console.log('Taking screenshots...');
+
   // Navigate to the page
   let browser = await puppeteer.launch({
     headless: true
   });
+
   let page = await browser.newPage();
-  await page.goto(url, {
+
+  await page.goto(argv.url, {
     waitUntil: "networkidle0",
     timeout: 60000
   });
 
-  const options = getScreenOptions(tailwindDefaults, height);
-  await takeScreenshots(page, options, out);
+  // Take the screenshots
+
+  const options = getScreenOptions(tailwindDefaults, argv.height);
+  await takeScreenshots(page, options, argv.out, argv.fullPage);
+
+  // Tidy up after ourselves
 
   await page.close()
   await browser.close()
@@ -128,6 +132,12 @@ yargs(hideBin(process.argv))
           type: 'number',
           describe: 'height of the screenshots',
           default: 1024
+        })
+        .option('fullPage', {
+          alias: 'f',
+          type: 'boolean',
+          describe: 'take full height screenshots, overides height',
+          default: false
         })
     },
     (argv) => {
