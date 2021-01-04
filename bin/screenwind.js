@@ -76,7 +76,8 @@ const takeScreenshots = async (page, options, out) => {
 
 const run = async ({
   url,
-  out
+  out,
+  height
 }) => {
   // Create directory if it doesn't exist
   fs.access(out, fs.constants.F_OK, (err) => {
@@ -102,8 +103,7 @@ const run = async ({
     timeout: 60000
   });
 
-  const options = getScreenOptions(tailwindDefaults, universalHeight);
-
+  const options = getScreenOptions(tailwindDefaults, height);
   await takeScreenshots(page, options, out);
 
   await page.close()
@@ -122,6 +122,12 @@ yargs(hideBin(process.argv))
           alias: 'o',
           describe: 'path to output files',
           default: './sw/'
+        })
+        .option('height', {
+          alias: 'h',
+          type: 'number',
+          describe: 'height of the screenshots',
+          default: 1024
         })
     },
     (argv) => {
