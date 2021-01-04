@@ -11,5 +11,8 @@
   "license": "MIT",
   "bin": {
     "screenwind": "./bin/screenwind.js"
+  },
+  "dependencies": {
+    "puppeteer": "^5.5.0"
   }
 }
